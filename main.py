@@ -8,10 +8,21 @@ if len(sys.argv) > 1:
 	# TODO: check if begins with http etc
 	url_parts = sys.argv[1].split('/')
 	base_url = '/'.join(url_parts[0:3])
-	bbb_id = url_parts[len(url_parts) - 1]
+
+	# check BBB version
+	if "/2.0/" in sys.argv[1]:
+		bbb_id = url_parts[len(url_parts) - 1].split('=')[1]
+	elif "/2.3/" in sys.argv[1]:
+		bbb_id = url_parts[len(url_parts) - 1]
+	else:
+		print("WARNING unsupported version")
+		exit(1)
 
 	shapes_url = base_url + "/presentation/" + bbb_id + "/shapes.svg"
 	r = http.request('GET', shapes_url)
+	if r.status == 404:
+		print("WARNING 404")
+		exit(2)
 	shapes = r.data.decode('utf-8')
 	shapes_xml_root = ET.fromstring(shapes)
 	print("wget " + base_url + "/presentation/" + bbb_id + "/video/webcams.webm")
